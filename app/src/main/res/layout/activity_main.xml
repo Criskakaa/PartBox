@@ -3,155 +3,249 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/morandi_background"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@color/primary"
         app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
         app:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
         app:title="零件出入库" />
 
-    <TextView
-        android:id="@+id/tvStatsAll"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="16dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="16dp"
-        android:text="全部零件：0 种，0 件"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/tvStatsFilter"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="16dp"
-        android:paddingTop="2dp"
-        android:paddingEnd="16dp"
-        android:text="当前结果：0 种，0 件"
-        android:textStyle="bold" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/searchInput"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="搜索：M3杯头 / 编号 / 备注"
-            android:imeOptions="actionSearch"
-            android:inputType="text"
-            android:maxLines="1" />
-
-        <Button
-            android:id="@+id/btnClearFilters"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="清空" />
-    </LinearLayout>
-
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="none">
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginRight="12dp"
+        app:cardBackgroundColor="@color/morandi_card"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="2dp"
+        app:strokeColor="@color/divider"
+        app:strokeWidth="1dp">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp">
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="12dp">
+
+            <TextView
+                android:id="@+id/tvStatsAll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="全部零件：0 种，0 件"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvStatsFilter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="当前结果：0 种，0 件"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="12dp"
+        app:cardBackgroundColor="@color/morandi_translucent"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="1dp"
+        app:strokeColor="@color/divider"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="12dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="8dp">
 
             <LinearLayout
-                android:layout_width="100dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:orientation="vertical">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="大类" />
+                <EditText
+                    android:id="@+id/searchInput"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_input_rounded"
+                    android:gravity="center_vertical"
+                    android:hint="搜索：M3杯头 / 编号 / 备注"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="14sp" />
 
-                <Spinner
-                    android:id="@+id/spinnerCategory"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                <Button
+                    android:id="@+id/btnClearFilters"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="4dp"
+                    android:text="清空"
+                    android:textColor="@color/primary" />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="100dp"
+            <HorizontalScrollView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:orientation="vertical">
+                android:layout_marginTop="4dp"
+                android:scrollbars="none">
 
-                <TextView
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="类型" />
+                    android:orientation="horizontal"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp">
 
-                <Spinner
-                    android:id="@+id/spinnerType"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:orientation="vertical">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="大类"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="规格" />
+                        <Spinner
+                            android:id="@+id/spinnerCategory"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/bg_input_rounded"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:spinnerMode="dropdown" />
+                    </LinearLayout>
 
-                <Spinner
-                    android:id="@+id/spinnerSpec"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="类型"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="长度" />
+                        <Spinner
+                            android:id="@+id/spinnerType"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/bg_input_rounded"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:spinnerMode="dropdown" />
+                    </LinearLayout>
 
-                <Spinner
-                    android:id="@+id/spinnerLength"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="规格"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+
+                        <Spinner
+                            android:id="@+id/spinnerSpec"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/bg_input_rounded"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:spinnerMode="dropdown" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="长度"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+
+                        <Spinner
+                            android:id="@+id/spinnerLength"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/bg_input_rounded"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:spinnerMode="dropdown" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </HorizontalScrollView>
 
         </LinearLayout>
-    </HorizontalScrollView>
+    </com.google.android.material.card.MaterialCardView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="4dp"
         android:layout_weight="1"
         android:clipToPadding="false"
-        android:padding="4dp" />
+        android:paddingLeft="8dp"
+        android:paddingTop="8dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="8dp" />
 
     <Button
         android:id="@+id/btnAdd"
-        style="@style/Widget.MaterialComponents.Button"
+        style="@style/Widget.Morandi.Button"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginBottom="12dp"
         android:text="＋ 新增零件" />
 
 </LinearLayout>

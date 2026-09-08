@@ -57,20 +57,8 @@ class PartAdapter(
 
         loadImage(part.imageFile, holder.imgPart, holder.itemView.context.filesDir)
 
-        holder.btnMinus.setOnClickListener {
-            onDecrease(part)
-        }
-
-        holder.btnPlus.setOnClickListener {
-            onIncrease(part)
-        }
-
-        holder.btnEdit.setOnClickListener {
+        holder.itemView.setOnClickListener {
             onEdit(part)
-        }
-
-        holder.btnDelete.setOnClickListener {
-            onDelete(part)
         }
     }
 
@@ -125,9 +113,5 @@ class PartAdapter(
         val tvQty: TextView = view.findViewById(R.id.tvQty)
         val tvMeta: TextView = view.findViewById(R.id.tvMeta)
         val imgPart: ImageView = view.findViewById(R.id.imgPart)
-        val btnMinus: View = view.findViewById(R.id.btnMinus)
-        val btnPlus: View = view.findViewById(R.id.btnPlus)
-        val btnEdit: View = view.findViewById(R.id.btnEdit)
-        val btnDelete: View = view.findViewById(R.id.btnDelete)
     }
 }

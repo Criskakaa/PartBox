@@ -32,6 +32,10 @@ class PartAdapter(
         notifyDataSetChanged()
     }
 
+    fun getItemAt(position: Int): Part? {
+        return if (position in items.indices) items[position] else null
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_part, parent, false)
@@ -56,10 +60,6 @@ class PartAdapter(
         holder.tvMeta.text = meta.joinToString(" | ")
 
         loadImage(part.imageFile, holder.imgPart, holder.itemView.context.filesDir)
-
-        holder.itemView.setOnClickListener {
-            onEdit(part)
-        }
     }
 
     private fun loadImage(fileName: String, imageView: ImageView, filesDir: File) {

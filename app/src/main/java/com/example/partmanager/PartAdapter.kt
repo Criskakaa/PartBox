@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 
@@ -28,13 +27,9 @@ class PartAdapter(
     }
 
     fun submitList(newList: List<Part>) {
-        val oldList = items.toList()
-        val diff = DiffUtil.calculateDiff(PartDiffCallback(oldList, newList))
-
         items.clear()
         items.addAll(newList)
-
-        diff.dispatchUpdatesTo(this)
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -134,23 +129,5 @@ class PartAdapter(
         val btnPlus: TextView = view.findViewById(R.id.btnPlus)
         val btnEdit: TextView = view.findViewById(R.id.btnEdit)
         val btnDelete: TextView = view.findViewById(R.id.btnDelete)
-    }
-
-    class PartDiffCallback(
-        private val oldList: List<Part>,
-        private val newList: List<Part>
-    ) : DiffUtil.Callback() {
-
-        override fun getOldListSize(): Int = oldList.size
-
-        override fun getNewListSize(): Int = newList.size
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].id == newList[newItemPosition].id
-        }
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition] == newList[newItemPosition]
-        }
     }
 }

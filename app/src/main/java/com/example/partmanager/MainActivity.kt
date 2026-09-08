@@ -19,6 +19,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 import java.text.SimpleDateFormat
@@ -98,8 +99,8 @@ class MainActivity : AppCompatActivity() {
         spinnerSpec = findViewById(R.id.spinnerSpec)
         spinnerLength = findViewById(R.id.spinnerLength)
         recyclerView = findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
 
+        recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.setHasFixedSize(true)
 
         adapter = PartAdapter(

@@ -52,7 +52,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // 第一版，无升级逻辑
     }
 
     fun insertPart(part: Part): Long {
@@ -153,6 +152,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null
             repeat(searchableColumns.size) {
                 args.add(like)
             }
+        }
+
+        if (clauses.isEmpty()) {
+            return getAllParts()
         }
 
         return queryParts(

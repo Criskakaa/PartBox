@@ -7,6 +7,8 @@
     android:layout_marginTop="6dp"
     android:layout_marginRight="4dp"
     android:layout_marginBottom="6dp"
+    android:clickable="false"
+    android:focusable="false"
     app:cardBackgroundColor="@color/morandi_card"
     app:cardCornerRadius="20dp"
     app:cardElevation="2dp"
@@ -84,69 +86,75 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:paddingStart="4dp"
             android:paddingEnd="4dp">
 
-            <TextView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnMinus"
-                android:layout_width="48dp"
-                android:layout_height="52dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="56dp"
+                android:layout_height="48dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
                 android:text="-"
                 android:textColor="@color/primary"
-                android:textSize="22sp" />
+                android:textSize="22sp"
+                app:iconPadding="0dp"
+                app:iconTint="@color/primary" />
 
-            <TextView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPlus"
-                android:layout_width="48dp"
-                android:layout_height="52dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="56dp"
+                android:layout_height="48dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
                 android:text="+"
                 android:textColor="@color/primary"
-                android:textSize="22sp" />
+                android:textSize="22sp"
+                app:iconPadding="0dp"
+                app:iconTint="@color/primary" />
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1" />
 
-            <TextView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEdit"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
-                android:layout_height="52dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:minWidth="56dp"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
+                android:layout_height="48dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
                 android:text="编辑"
                 android:textColor="@color/primary"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                app:iconPadding="0dp"
+                app:iconTint="@color/primary" />
 
-            <TextView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDelete"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
-                android:layout_height="52dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:minWidth="56dp"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
+                android:layout_height="48dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
                 android:text="删除"
                 android:textColor="@color/error"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                app:iconPadding="0dp"
+                app:iconTint="@color/error" />
 
         </LinearLayout>
 

@@ -1,5 +1,18 @@
 <resources>
-    <color name="primary">#1E88E5</color>
-    <color name="primary_dark">#1565C0</color>
-    <color name="accent">#FFC107</color>
+    <color name="primary">#6D8F83</color>
+    <color name="primary_dark">#55736A</color>
+    <color name="accent">#C5AFA6</color>
+    <color name="on_primary">#FFFFFF</color>
+
+    <color name="morandi_background">#F2EFEA</color>
+    <color name="morandi_surface">#F9F6F1</color>
+    <color name="morandi_card">#FCFAF6</color>
+    <color name="morandi_translucent">#EAF5F2EC</color>
+    <color name="morandi_input">#E9E4DC</color>
+    <color name="text_primary">#3B3A36</color>
+    <color name="text_secondary">#858077</color>
+    <color name="divider">#E3DED5</color>
+    <color name="error">#C96B5B</color>
+
+    <color name="ic_launcher_background">#6D8F83</color>
 </resources>

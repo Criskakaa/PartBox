@@ -6,7 +6,6 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -14,15 +13,13 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
+import android.widget.ListView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.card.MaterialCardView
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -31,6 +28,7 @@ import java.util.Locale
 class MainActivity : AppCompatActivity() {
 
     private lateinit var db: DatabaseHelper
+    private lateinit var adapter: PartAdapter
 
     private lateinit var toolbar: androidx.appcompat.widget.Toolbar
     private lateinit var tvStatsAll: TextView
@@ -40,7 +38,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var spinnerType: Spinner
     private lateinit var spinnerSpec: Spinner
     private lateinit var spinnerLength: Spinner
-    private lateinit var listContainer: LinearLayout
+    private lateinit var listView: ListView
 
     private var isRefreshing = false
     private var allParts: List<Part> = emptyList()
@@ -86,10 +84,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         db = DatabaseHelper(this)
+        allParts = db.getAllParts()
 
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-        supportActionBar?.title = "零件出入库 v1.1"
+        supportActionBar?.title = getString(R.string.app_name)
 
         tvStatsAll = findViewById(R.id.tvStatsAll)
         tvStatsFilter = findViewById(R.id.tvStatsFilter)
@@ -98,7 +97,17 @@ class MainActivity : AppCompatActivity() {
         spinnerType = findViewById(R.id.spinnerType)
         spinnerSpec = findViewById(R.id.spinnerSpec)
         spinnerLength = findViewById(R.id.spinnerLength)
-        listContainer = findViewById(R.id.listContainer)
+        listView = findViewById(R.id.listView)
+
+        adapter = PartAdapter(this, allParts)
+        listView.adapter = adapter
+
+        listView.setOnItemClickListener { _, _, position, _ ->
+            val part = adapter.getItem(position)
+            if (part != null) {
+                openEditPart(part)
+            }
+        }
 
         findViewById<Button>(R.id.btnAdd).setOnClickListener {
             val intent = Intent(this, EditPartActivity::class.java)
@@ -121,18 +130,45 @@ class MainActivity : AppCompatActivity() {
         })
 
         setupSpinnerListeners()
-
-        // 首次加载
-        allParts = db.getAllParts()
         updateSpinnerOptions()
         refreshData()
     }
 
-    override fun onResume() {
-        super.onResume()
-        allParts = db.getAllParts()
-        updateSpinnerOptions()
-        refreshData()
+    override fun onDestroy() {
+        searchDebounce.removeCallbacks(searchRunnable)
+        super.onDestroy()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_export -> {
+                startExport()
+                true
+            }
+            R.id.action_import -> {
+                importLauncher.launch(
+                    arrayOf(
+                        "text/csv",
+                        "text/comma-separated-values",
+                        "application/csv",
+                        "*/*"
+                    )
+                )
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun openEditPart(part: Part) {
+        val intent = Intent(this, EditPartActivity::class.java)
+            .putExtra(EditPartActivity.EXTRA_ID, part.id)
+        editLauncher.launch(intent)
     }
 
     private fun setupSpinnerListeners() {
@@ -267,94 +303,10 @@ class MainActivity : AppCompatActivity() {
             allParts
         }
 
-        renderList(parts)
+        adapter.updateList(parts)
 
         tvStatsAll.text = "全部零件：${countKinds(allParts)} 种，${sumQuantity(allParts)} 件"
         tvStatsFilter.text = "当前结果：${countKinds(parts)} 种，${sumQuantity(parts)} 件"
-    }
-
-    private fun renderList(parts: List<Part>) {
-        listContainer.removeAllViews()
-        val inflater = LayoutInflater.from(this)
-
-        for (part in parts) {
-            val cardView = inflater.inflate(R.layout.item_part, listContainer, false) as MaterialCardView
-
-            val imgPart = cardView.findViewById<ImageView>(R.id.imgPart)
-            val tvTitle = cardView.findViewById<TextView>(R.id.tvTitle)
-            val tvCode = cardView.findViewById<TextView>(R.id.tvCode)
-            val tvQty = cardView.findViewById<TextView>(R.id.tvQty)
-            val tvMeta = cardView.findViewById<TextView>(R.id.tvMeta)
-            val btnEdit = cardView.findViewById<Button>(R.id.btnEdit)
-
-            tvTitle.text = listOf(part.category, part.type, part.spec, part.length)
-                .filter { it.isNotBlank() }
-                .joinToString(" ")
-
-            tvCode.text = "编号：${part.uniqueCode}"
-            tvQty.text = "数量：${part.quantity}"
-
-            val meta = mutableListOf<String>()
-            if (part.location.isNotBlank()) meta.add("位置：${part.location}")
-            if (part.remark.isNotBlank()) meta.add("备注：${part.remark}")
-            tvMeta.text = meta.joinToString(" | ")
-
-            loadImage(part.imageFile, imgPart)
-
-            // 点击按钮进入编辑
-            btnEdit.setOnClickListener {
-                openEditPart(part)
-            }
-
-            // 点击整张卡片也进入编辑
-            cardView.setOnClickListener {
-                openEditPart(part)
-            }
-
-            listContainer.addView(cardView)
-        }
-    }
-
-    private fun loadImage(fileName: String, imageView: ImageView) {
-        if (fileName.isBlank()) {
-            imageView.setImageResource(android.R.drawable.ic_menu_gallery)
-            return
-        }
-
-        val file = File(filesDir, fileName)
-        if (!file.exists()) {
-            imageView.setImageResource(android.R.drawable.ic_menu_gallery)
-            return
-        }
-
-        val bounds = android.graphics.BitmapFactory.Options().apply {
-            inJustDecodeBounds = true
-        }
-        android.graphics.BitmapFactory.decodeFile(file.absolutePath, bounds)
-
-        var sample = 1
-        while (bounds.outWidth / (sample * 2) >= 100 &&
-            bounds.outHeight / (sample * 2) >= 100
-        ) {
-            sample *= 2
-        }
-
-        val options = android.graphics.BitmapFactory.Options().apply {
-            inSampleSize = sample
-        }
-
-        val bitmap = android.graphics.BitmapFactory.decodeFile(file.absolutePath, options)
-        if (bitmap != null) {
-            imageView.setImageBitmap(bitmap)
-        } else {
-            imageView.setImageResource(android.R.drawable.ic_menu_gallery)
-        }
-    }
-
-    private fun openEditPart(part: Part) {
-        val intent = Intent(this, EditPartActivity::class.java)
-            .putExtra(EditPartActivity.EXTRA_ID, part.id)
-        editLauncher.launch(intent)
     }
 
     private fun onDataChanged() {
@@ -362,37 +314,6 @@ class MainActivity : AppCompatActivity() {
         allParts = db.getAllParts()
         updateSpinnerOptions()
         refreshData()
-    }
-
-    override fun onDestroy() {
-        searchDebounce.removeCallbacks(searchRunnable)
-        super.onDestroy()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_export -> {
-                startExport()
-                true
-            }
-            R.id.action_import -> {
-                importLauncher.launch(
-                    arrayOf(
-                        "text/csv",
-                        "text/comma-separated-values",
-                        "application/csv",
-                        "*/*"
-                    )
-                )
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 
     private fun countKinds(parts: List<Part>): Int {

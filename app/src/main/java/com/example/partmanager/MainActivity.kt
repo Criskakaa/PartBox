@@ -6,8 +6,10 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.GestureDetector
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -115,9 +117,7 @@ class MainActivity : AppCompatActivity() {
                 }
             },
             onEdit = { part ->
-                val intent = Intent(this, EditPartActivity::class.java)
-                    .putExtra(EditPartActivity.EXTRA_ID, part.id)
-                editLauncher.launch(intent)
+                openEditPart(part)
             },
             onDelete = { part ->
                 confirmDelete(part)
@@ -125,6 +125,41 @@ class MainActivity : AppCompatActivity() {
         )
 
         recyclerView.adapter = adapter
+
+        // 在 RecyclerView 层直接检测点击卡片，绕开 item 内部点击失灵的问题
+        val gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onDown(e: MotionEvent): Boolean = true
+
+            override fun onSingleTapUp(e: MotionEvent): Boolean = true
+        })
+
+        recyclerView.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
+            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                val child = rv.findChildViewUnder(e.x, e.y) ?: return false
+                val position = rv.getChildAdapterPosition(child)
+                if (position == RecyclerView.NO_POSITION) return false
+
+                when (e.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        gestureDetector.onTouchEvent(e)
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        if (gestureDetector.onTouchEvent(e)) {
+                            val part = adapter.getItemAt(position)
+                            if (part != null) {
+                                openEditPart(part)
+                                return true
+                            }
+                        }
+                    }
+                }
+                return false
+            }
+
+            override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
+
+            override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
+        })
 
         findViewById<Button>(R.id.btnAdd).setOnClickListener {
             val intent = Intent(this, EditPartActivity::class.java)
@@ -149,6 +184,12 @@ class MainActivity : AppCompatActivity() {
         setupSpinnerListeners()
         updateSpinnerOptions()
         refreshData()
+    }
+
+    private fun openEditPart(part: Part) {
+        val intent = Intent(this, EditPartActivity::class.java)
+            .putExtra(EditPartActivity.EXTRA_ID, part.id)
+        editLauncher.launch(intent)
     }
 
     override fun onDestroy() {

@@ -125,9 +125,9 @@ class PartAdapter(
         val tvQty: TextView = view.findViewById(R.id.tvQty)
         val tvMeta: TextView = view.findViewById(R.id.tvMeta)
         val imgPart: ImageView = view.findViewById(R.id.imgPart)
-        val btnMinus: TextView = view.findViewById(R.id.btnMinus)
-        val btnPlus: TextView = view.findViewById(R.id.btnPlus)
-        val btnEdit: TextView = view.findViewById(R.id.btnEdit)
-        val btnDelete: TextView = view.findViewById(R.id.btnDelete)
+        val btnMinus: View = view.findViewById(R.id.btnMinus)
+        val btnPlus: View = view.findViewById(R.id.btnPlus)
+        val btnEdit: View = view.findViewById(R.id.btnEdit)
+        val btnDelete: View = view.findViewById(R.id.btnDelete)
     }
 }

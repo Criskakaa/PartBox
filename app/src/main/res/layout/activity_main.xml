@@ -221,25 +221,19 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <ScrollView
-        android:id="@+id/scrollViewList"
+    <ListView
+        android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="4dp"
         android:layout_weight="1"
+        android:divider="@null"
+        android:dividerHeight="0dp"
         android:clipToPadding="false"
-        android:fillViewport="true">
-
-        <LinearLayout
-            android:id="@+id/listContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingLeft="8dp"
-            android:paddingTop="4dp"
-            android:paddingRight="8dp"
-            android:paddingBottom="8dp" />
-    </ScrollView>
+        android:paddingLeft="8dp"
+        android:paddingTop="4dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="8dp" />
 
     <Button
         android:id="@+id/btnAdd"

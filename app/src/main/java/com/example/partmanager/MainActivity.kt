@@ -98,6 +98,7 @@ class MainActivity : AppCompatActivity() {
         spinnerSpec = findViewById(R.id.spinnerSpec)
         spinnerLength = findViewById(R.id.spinnerLength)
         recyclerView = findViewById(R.id.recyclerView)
+        recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
 
         recyclerView.setHasFixedSize(true)
 

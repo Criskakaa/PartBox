@@ -1,24 +1,24 @@
 package com.example.partmanager
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.LruCache
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 
 class PartAdapter(
-    private val onIncrease: (Part) -> Unit,
-    private val onDecrease: (Part) -> Unit,
-    private val onEdit: (Part) -> Unit,
-    private val onDelete: (Part) -> Unit
-) : RecyclerView.Adapter<PartAdapter.VH>() {
+    private val context: Context,
+    items: List<Part>
+) : BaseAdapter() {
 
-    private val items = mutableListOf<Part>()
+    private val parts = mutableListOf<Part>().apply { addAll(items) }
+    private val inflater = LayoutInflater.from(context)
 
     private val imageCache = object : LruCache<String, Bitmap>(10 * 1024 * 1024) {
         override fun sizeOf(key: String, value: Bitmap): Int {
@@ -26,51 +26,56 @@ class PartAdapter(
         }
     }
 
-    fun submitList(newList: List<Part>) {
-        items.clear()
-        items.addAll(newList)
+    fun updateList(newList: List<Part>) {
+        parts.clear()
+        parts.addAll(newList)
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_part, parent, false)
-        return VH(view)
+    override fun getCount(): Int = parts.size
+
+    override fun getItem(position: Int): Part? {
+        return if (position in parts.indices) parts[position] else null
     }
 
-    override fun getItemCount(): Int = items.size
+    override fun getItemId(position: Int): Long {
+        return parts.getOrNull(position)?.id ?: 0L
+    }
 
-    override fun onBindViewHolder(holder: VH, position: Int) {
-        val part = items[position]
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val view = convertView ?: inflater.inflate(R.layout.item_part, parent, false)
+        val part = parts[position]
 
-        // 显示文字
-        holder.tvTitle.text = listOf(part.category, part.type, part.spec, part.length)
+        val tvTitle = view.findViewById<TextView>(R.id.tvTitle)
+        val tvCode = view.findViewById<TextView>(R.id.tvCode)
+        val tvQty = view.findViewById<TextView>(R.id.tvQty)
+        val tvMeta = view.findViewById<TextView>(R.id.tvMeta)
+        val imgPart = view.findViewById<ImageView>(R.id.imgPart)
+
+        tvTitle.text = listOf(part.category, part.type, part.spec, part.length)
             .filter { it.isNotBlank() }
             .joinToString(" ")
 
-        holder.tvCode.text = "编号：${part.uniqueCode}"
-        holder.tvQty.text = "数量：${part.quantity}"
+        tvCode.text = "编号：${part.uniqueCode}"
+        tvQty.text = "数量：${part.quantity}"
 
         val meta = mutableListOf<String>()
         if (part.location.isNotBlank()) meta.add("位置：${part.location}")
         if (part.remark.isNotBlank()) meta.add("备注：${part.remark}")
-        holder.tvMeta.text = meta.joinToString(" | ")
+        tvMeta.text = meta.joinToString(" | ")
 
-        loadImage(part.imageFile, holder.imgPart, holder.itemView.context.filesDir)
+        loadImage(part.imageFile, imgPart)
 
-        // 整个卡片点击进入编辑
-        holder.itemView.setOnClickListener {
-            onEdit(part)
-        }
+        return view
     }
 
-    private fun loadImage(fileName: String, imageView: ImageView, filesDir: File) {
+    private fun loadImage(fileName: String, imageView: ImageView) {
         if (fileName.isBlank()) {
             imageView.setImageResource(android.R.drawable.ic_menu_gallery)
             return
         }
 
-        val file = File(filesDir, fileName)
+        val file = File(context.filesDir, fileName)
         if (!file.exists()) {
             imageView.setImageResource(android.R.drawable.ic_menu_gallery)
             return
@@ -107,13 +112,5 @@ class PartAdapter(
         } else {
             imageView.setImageResource(android.R.drawable.ic_menu_gallery)
         }
-    }
-
-    class VH(view: View) : RecyclerView.ViewHolder(view) {
-        val tvTitle: TextView = view.findViewById(R.id.tvTitle)
-        val tvCode: TextView = view.findViewById(R.id.tvCode)
-        val tvQty: TextView = view.findViewById(R.id.tvQty)
-        val tvMeta: TextView = view.findViewById(R.id.tvMeta)
-        val imgPart: ImageView = view.findViewById(R.id.imgPart)
     }
 }

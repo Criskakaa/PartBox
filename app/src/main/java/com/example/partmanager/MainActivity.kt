@@ -86,11 +86,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         db = DatabaseHelper(this)
-        allParts = db.getAllParts()
 
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-        supportActionBar?.title = getString(R.string.app_name)
+        supportActionBar?.title = "零件出入库 v1.1"
 
         tvStatsAll = findViewById(R.id.tvStatsAll)
         tvStatsFilter = findViewById(R.id.tvStatsFilter)
@@ -122,6 +121,16 @@ class MainActivity : AppCompatActivity() {
         })
 
         setupSpinnerListeners()
+
+        // 首次加载
+        allParts = db.getAllParts()
+        updateSpinnerOptions()
+        refreshData()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        allParts = db.getAllParts()
         updateSpinnerOptions()
         refreshData()
     }
@@ -266,17 +275,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun renderList(parts: List<Part>) {
         listContainer.removeAllViews()
-
         val inflater = LayoutInflater.from(this)
 
         for (part in parts) {
             val cardView = inflater.inflate(R.layout.item_part, listContainer, false) as MaterialCardView
 
+            val imgPart = cardView.findViewById<ImageView>(R.id.imgPart)
             val tvTitle = cardView.findViewById<TextView>(R.id.tvTitle)
             val tvCode = cardView.findViewById<TextView>(R.id.tvCode)
             val tvQty = cardView.findViewById<TextView>(R.id.tvQty)
             val tvMeta = cardView.findViewById<TextView>(R.id.tvMeta)
-            val imgPart = cardView.findViewById<ImageView>(R.id.imgPart)
+            val btnEdit = cardView.findViewById<Button>(R.id.btnEdit)
 
             tvTitle.text = listOf(part.category, part.type, part.spec, part.length)
                 .filter { it.isNotBlank() }
@@ -292,7 +301,12 @@ class MainActivity : AppCompatActivity() {
 
             loadImage(part.imageFile, imgPart)
 
-            // 点击整个卡片，进入编辑详情页
+            // 点击按钮进入编辑
+            btnEdit.setOnClickListener {
+                openEditPart(part)
+            }
+
+            // 点击整张卡片也进入编辑
             cardView.setOnClickListener {
                 openEditPart(part)
             }

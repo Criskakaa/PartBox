@@ -1,8 +1,9 @@
 package com.example.partmanager
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
@@ -18,7 +19,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 import java.text.SimpleDateFormat
@@ -41,6 +41,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
 
     private var isRefreshing = false
+    private var allParts: List<Part> = emptyList()
+
+    private val searchDebounce = Handler(Looper.getMainLooper())
+    private val searchRunnable = Runnable { refreshData() }
 
     private val editLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -55,7 +59,7 @@ class MainActivity : AppCompatActivity() {
     ) { uri ->
         if (uri == null) return@registerForActivityResult
         try {
-            CsvUtils.exportToCsv(contentResolver, uri, db.getAllParts())
+            CsvUtils.exportToCsv(contentResolver, uri, allParts)
             toast("CSV 已导出")
         } catch (e: Exception) {
             toast("导出失败：${e.message}")
@@ -80,6 +84,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         db = DatabaseHelper(this)
+        allParts = db.getAllParts()
 
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -94,7 +99,7 @@ class MainActivity : AppCompatActivity() {
         spinnerLength = findViewById(R.id.spinnerLength)
         recyclerView = findViewById(R.id.recyclerView)
 
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.setHasFixedSize(true)
 
         adapter = PartAdapter(
             onIncrease = { part ->
@@ -116,6 +121,7 @@ class MainActivity : AppCompatActivity() {
                 confirmDelete(part)
             }
         )
+
         recyclerView.adapter = adapter
 
         findViewById<Button>(R.id.btnAdd).setOnClickListener {
@@ -129,12 +135,11 @@ class MainActivity : AppCompatActivity() {
 
         searchInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
             override fun afterTextChanged(s: Editable?) {
                 if (!isRefreshing) {
-                    refreshData()
+                    searchDebounce.removeCallbacks(searchRunnable)
+                    searchDebounce.postDelayed(searchRunnable, 250)
                 }
             }
         })
@@ -142,6 +147,11 @@ class MainActivity : AppCompatActivity() {
         setupSpinnerListeners()
         updateSpinnerOptions()
         refreshData()
+    }
+
+    override fun onDestroy() {
+        searchDebounce.removeCallbacks(searchRunnable)
+        super.onDestroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -156,7 +166,14 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.action_import -> {
-                importLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "application/csv", "*/*"))
+                importLauncher.launch(
+                    arrayOf(
+                        "text/csv",
+                        "text/comma-separated-values",
+                        "application/csv",
+                        "*/*"
+                    )
+                )
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -187,6 +204,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun clearFilters() {
+        searchDebounce.removeCallbacks(searchRunnable)
+
         isRefreshing = true
         searchInput.setText("")
         spinnerCategory.setSelection(0)
@@ -269,22 +288,39 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshData() {
-        val parts = db.queryParts(
-            category = currentValue(spinnerCategory),
-            type = currentValue(spinnerType),
-            spec = currentValue(spinnerSpec),
-            length = currentValue(spinnerLength),
-            searchTerms = currentSearchTerms()
-        )
+        val category = currentValue(spinnerCategory)
+        val type = currentValue(spinnerType)
+        val spec = currentValue(spinnerSpec)
+        val length = currentValue(spinnerLength)
+        val searchTerms = currentSearchTerms()
+
+        val hasFilter = !searchTerms.isEmpty() ||
+            category != null ||
+            type != null ||
+            spec != null ||
+            length != null
+
+        val parts = if (hasFilter) {
+            db.queryParts(
+                category = category,
+                type = type,
+                spec = spec,
+                length = length,
+                searchTerms = searchTerms
+            )
+        } else {
+            allParts
+        }
 
         adapter.submitList(parts)
 
-        val allParts = db.getAllParts()
         tvStatsAll.text = "全部零件：${countKinds(allParts)} 种，${sumQuantity(allParts)} 件"
         tvStatsFilter.text = "当前结果：${countKinds(parts)} 种，${sumQuantity(parts)} 件"
     }
 
     private fun onDataChanged() {
+        searchDebounce.removeCallbacks(searchRunnable)
+        allParts = db.getAllParts()
         updateSpinnerOptions()
         refreshData()
     }
@@ -318,7 +354,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startExport() {
-        if (db.getAllParts().isEmpty()) {
+        if (allParts.isEmpty()) {
             toast("没有可导出的数据")
             return
         }

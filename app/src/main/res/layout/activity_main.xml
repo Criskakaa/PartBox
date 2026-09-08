@@ -15,7 +15,6 @@
         app:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
         app:title="零件出入库" />
 
-    <!-- 统计卡片 -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -58,7 +57,6 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- 搜索和筛选卡片 -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -223,7 +221,6 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- 零件列表：使用 ScrollView 替代 RecyclerView -->
     <ScrollView
         android:id="@+id/scrollViewList"
         android:layout_width="match_parent"

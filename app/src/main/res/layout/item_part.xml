@@ -3,10 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
-    app:cardBackgroundColor="?attr/colorSurface"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    android:layout_marginLeft="4dp"
+    android:layout_marginTop="6dp"
+    android:layout_marginRight="4dp"
+    android:layout_marginBottom="6dp"
+    app:cardBackgroundColor="@color/morandi_card"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/divider"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,20 +22,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="8dp">
+            android:paddingStart="10dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="6dp">
 
             <ImageView
                 android:id="@+id/imgPart"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:background="#ECEFF1"
+                android:background="@color/morandi_input"
                 android:scaleType="centerCrop"
                 android:src="@android:drawable/ic_menu_gallery" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="10dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -38,6 +46,7 @@
                     android:id="@+id/tvTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -45,12 +54,16 @@
                     android:id="@+id/tvCode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/tvQty"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="@color/primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
@@ -58,6 +71,8 @@
                     android:id="@+id/tvMeta"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
@@ -65,58 +80,73 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="?android:attr/listDivider" />
+            android:background="@color/divider" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="52dp"
             android:orientation="horizontal"
-            android:padding="4dp">
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp">
 
-            <Button
+            <TextView
                 android:id="@+id/btnMinus"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="44dp"
-                android:layout_height="36dp"
-                android:minWidth="0dp"
-                android:minHeight="36dp"
+                android:layout_width="48dp"
+                android:layout_height="52dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
                 android:text="-"
-                android:textSize="18sp" />
+                android:textColor="@color/primary"
+                android:textSize="22sp" />
 
-            <Button
+            <TextView
                 android:id="@+id/btnPlus"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="44dp"
-                android:layout_height="36dp"
-                android:minWidth="0dp"
-                android:minHeight="36dp"
+                android:layout_width="48dp"
+                android:layout_height="52dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
                 android:text="+"
-                android:textSize="18sp" />
+                android:textColor="@color/primary"
+                android:textSize="22sp" />
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1" />
 
-            <Button
+            <TextView
                 android:id="@+id/btnEdit"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="52dp"
-                android:layout_height="36dp"
-                android:minWidth="0dp"
-                android:minHeight="36dp"
+                android:layout_width="wrap_content"
+                android:layout_height="52dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:minWidth="56dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:text="编辑"
-                android:textSize="12sp" />
+                android:textColor="@color/primary"
+                android:textSize="14sp" />
 
-            <Button
+            <TextView
                 android:id="@+id/btnDelete"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="52dp"
-                android:layout_height="36dp"
-                android:minWidth="0dp"
-                android:minHeight="36dp"
+                android:layout_width="wrap_content"
+                android:layout_height="52dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:minWidth="56dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:text="删除"
-                android:textSize="12sp" />
+                android:textColor="@color/error"
+                android:textSize="14sp" />
 
         </LinearLayout>
 

@@ -8,6 +8,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import java.io.File
 import java.io.FileOutputStream
@@ -87,6 +88,19 @@ class EditPartActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnSave).setOnClickListener {
             savePart()
+        }
+
+        val deleteBtn = findViewById<Button>(R.id.btnDelete)
+        deleteBtn.setOnClickListener {
+            if (partId == 0L) {
+                finish()
+            } else {
+                confirmDelete()
+            }
+        }
+
+        if (partId == 0L) {
+            deleteBtn.text = "返回"
         }
     }
 
@@ -175,7 +189,7 @@ class EditPartActivity : AppCompatActivity() {
     private fun savePart() {
         val code = codeInput.text.toString().trim()
         if (code.isEmpty()) {
-            codeInput.error = "唯一编号不能为空"
+            codeInput.error = "请填写唯一编号"
             codeInput.requestFocus()
             return
         }
@@ -188,27 +202,24 @@ class EditPartActivity : AppCompatActivity() {
         }
 
         if (quantity == null) {
-            quantityInput.error = "数量必须是整数"
-            quantityInput.requestFocus()
+            toast("数量必须是整数")
             return
         }
         if (quantity < 0) {
-            quantityInput.error = "数量不能为负数"
-            quantityInput.requestFocus()
+            toast("数量不能为负数")
             return
         }
 
         if (partId == 0L) {
             if (db.findByUniqueCode(code) != null) {
-                codeInput.error = "唯一编号已存在"
-                codeInput.requestFocus()
+                toast("该唯一编号已存在")
                 return
             }
         }
 
         val originalPart = if (partId != 0L) db.findById(partId) else null
         if (partId != 0L && originalPart == null) {
-            toast("原记录不存在")
+            toast("记录不存在")
             finish()
             return
         }
@@ -239,6 +250,26 @@ class EditPartActivity : AppCompatActivity() {
 
         setResult(RESULT_OK)
         finish()
+    }
+
+    private fun confirmDelete() {
+        AlertDialog.Builder(this)
+            .setTitle("删除零件")
+            .setMessage("确定删除这个零件吗？删除后无法恢复。")
+            .setNegativeButton("取消", null)
+            .setPositiveButton("删除") { _, _ ->
+                db.deletePart(partId)
+                if (oldImageFileName.isNotEmpty()) {
+                    val file = File(filesDir, oldImageFileName)
+                    if (file.exists()) {
+                        file.delete()
+                    }
+                }
+                toast("已删除")
+                setResult(RESULT_OK)
+                finish()
+            }
+            .show()
     }
 
     override fun onSupportNavigateUp(): Boolean {

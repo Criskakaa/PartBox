@@ -1,12 +1,14 @@
 package com.example.partmanager
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.LruCache
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 
@@ -19,10 +21,20 @@ class PartAdapter(
 
     private val items = mutableListOf<Part>()
 
+    private val imageCache = object : LruCache<String, Bitmap>(10 * 1024 * 1024) {
+        override fun sizeOf(key: String, value: Bitmap): Int {
+            return value.byteCount
+        }
+    }
+
     fun submitList(newList: List<Part>) {
+        val oldList = items.toList()
+        val diff = DiffUtil.calculateDiff(PartDiffCallback(oldList, newList))
+
         items.clear()
         items.addAll(newList)
-        notifyDataSetChanged()
+
+        diff.dispatchUpdatesTo(this)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -53,17 +65,17 @@ class PartAdapter(
         holder.btnMinus.setOnClickListener {
             onDecrease(part)
         }
+
         holder.btnPlus.setOnClickListener {
             onIncrease(part)
         }
+
         holder.btnEdit.setOnClickListener {
             onEdit(part)
         }
+
         holder.btnDelete.setOnClickListener {
             onDelete(part)
-        }
-        holder.itemView.setOnClickListener {
-            onEdit(part)
         }
     }
 
@@ -76,6 +88,14 @@ class PartAdapter(
         val file = File(filesDir, fileName)
         if (!file.exists()) {
             imageView.setImageResource(android.R.drawable.ic_menu_gallery)
+            return
+        }
+
+        val key = file.absolutePath
+
+        val cached = imageCache.get(key)
+        if (cached != null && !cached.isRecycled) {
+            imageView.setImageBitmap(cached)
             return
         }
 
@@ -97,6 +117,7 @@ class PartAdapter(
 
         val bitmap = BitmapFactory.decodeFile(file.absolutePath, options)
         if (bitmap != null) {
+            imageCache.put(key, bitmap)
             imageView.setImageBitmap(bitmap)
         } else {
             imageView.setImageResource(android.R.drawable.ic_menu_gallery)
@@ -109,9 +130,27 @@ class PartAdapter(
         val tvQty: TextView = view.findViewById(R.id.tvQty)
         val tvMeta: TextView = view.findViewById(R.id.tvMeta)
         val imgPart: ImageView = view.findViewById(R.id.imgPart)
-        val btnMinus: Button = view.findViewById(R.id.btnMinus)
-        val btnPlus: Button = view.findViewById(R.id.btnPlus)
-        val btnEdit: Button = view.findViewById(R.id.btnEdit)
-        val btnDelete: Button = view.findViewById(R.id.btnDelete)
+        val btnMinus: TextView = view.findViewById(R.id.btnMinus)
+        val btnPlus: TextView = view.findViewById(R.id.btnPlus)
+        val btnEdit: TextView = view.findViewById(R.id.btnEdit)
+        val btnDelete: TextView = view.findViewById(R.id.btnDelete)
+    }
+
+    class PartDiffCallback(
+        private val oldList: List<Part>,
+        private val newList: List<Part>
+    ) : DiffUtil.Callback() {
+
+        override fun getOldListSize(): Int = oldList.size
+
+        override fun getNewListSize(): Int = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
+        }
     }
 }

@@ -191,23 +191,31 @@
                         android:orientation="horizontal">
 
                         <Button
+                            android:id="@+id/btnTakePhoto"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="0dp"
+                            android:layout_height="52dp"
+                            android:layout_weight="1"
+                            android:text="拍照"
+                            android:textColor="@color/primary" />
+
+                        <Button
                             android:id="@+id/btnPickImage"
                             style="@style/Widget.MaterialComponents.Button.TextButton"
                             android:layout_width="0dp"
                             android:layout_height="52dp"
                             android:layout_weight="1"
-                            android:text="选择图片"
+                            android:text="相册选取"
                             android:textColor="@color/primary" />
-
-                        <Button
-                            android:id="@+id/btnRemoveImage"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"
-                            android:layout_width="0dp"
-                            android:layout_height="52dp"
-                            android:layout_weight="1"
-                            android:text="移除图片"
-                            android:textColor="@color/error" />
                     </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btnRemoveImage"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:text="移除图片"
+                        android:textColor="@color/error" />
 
                     <Button
                         android:id="@+id/btnSave"

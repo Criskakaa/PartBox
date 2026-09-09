@@ -1,10 +1,11 @@
 package com.example.partmanager
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -12,6 +13,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import java.io.File
 import java.io.FileOutputStream
@@ -53,7 +55,6 @@ class EditPartActivity : AppCompatActivity() {
         pendingCameraFile = null
 
         if (success && cameraFile != null && cameraFile.exists() && cameraFile.length() > 0L) {
-            // 删除当前临时替换但未保存的旧新图
             val previousCurrent = currentImageFileName
             if (previousCurrent.isNotEmpty() && previousCurrent != oldImageFileName) {
                 File(filesDir, previousCurrent).delete()
@@ -64,6 +65,16 @@ class EditPartActivity : AppCompatActivity() {
             toast("照片已添加")
         } else {
             cameraFile?.delete()
+        }
+    }
+
+    private val cameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            startCamera()
+        } else {
+            toast("需要相机权限才能拍照，您可以使用“相册选取”功能")
         }
     }
 
@@ -134,12 +145,17 @@ class EditPartActivity : AppCompatActivity() {
     }
 
     private fun launchCamera() {
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        if (intent.resolveActivity(packageManager) == null) {
-            toast("未找到可用的相机应用")
-            return
+        // 先检查是否已获得相机权限
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            startCamera()
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
+    }
 
+    private fun startCamera() {
         try {
             val photoFile = File(filesDir, "camera_${System.currentTimeMillis()}.jpg")
             pendingCameraFile = photoFile
@@ -151,7 +167,7 @@ class EditPartActivity : AppCompatActivity() {
             takePictureLauncher.launch(photoUri)
         } catch (e: Exception) {
             pendingCameraFile = null
-            toast("相机启动失败")
+            toast("无法启动相机，请检查是否安装了相机应用")
         }
     }
 

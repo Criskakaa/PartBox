@@ -1,8 +1,10 @@
 package com.example.partmanager
 
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -10,6 +12,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import java.io.File
 import java.io.FileOutputStream
 
@@ -33,12 +36,34 @@ class EditPartActivity : AppCompatActivity() {
     private var partId = 0L
     private var oldImageFileName = ""
     private var currentImageFileName = ""
+    private var pendingCameraFile: File? = null
 
     private val imagePicker = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri ->
         if (uri != null && !copySelectedImage(uri)) {
             toast("图片读取失败")
+        }
+    }
+
+    private val takePictureLauncher = registerForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        val cameraFile = pendingCameraFile
+        pendingCameraFile = null
+
+        if (success && cameraFile != null && cameraFile.exists() && cameraFile.length() > 0L) {
+            // 删除当前临时替换但未保存的旧新图
+            val previousCurrent = currentImageFileName
+            if (previousCurrent.isNotEmpty() && previousCurrent != oldImageFileName) {
+                File(filesDir, previousCurrent).delete()
+            }
+
+            currentImageFileName = cameraFile.name
+            displayImage()
+            toast("照片已添加")
+        } else {
+            cameraFile?.delete()
         }
     }
 
@@ -73,6 +98,10 @@ class EditPartActivity : AppCompatActivity() {
 
         supportActionBar?.title = if (partId == 0L) "新增零件" else "编辑零件"
 
+        findViewById<Button>(R.id.btnTakePhoto).setOnClickListener {
+            launchCamera()
+        }
+
         findViewById<Button>(R.id.btnPickImage).setOnClickListener {
             imagePicker.launch("image/*")
         }
@@ -101,6 +130,28 @@ class EditPartActivity : AppCompatActivity() {
 
         if (partId == 0L) {
             deleteBtn.text = "返回"
+        }
+    }
+
+    private fun launchCamera() {
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (intent.resolveActivity(packageManager) == null) {
+            toast("未找到可用的相机应用")
+            return
+        }
+
+        try {
+            val photoFile = File(filesDir, "camera_${System.currentTimeMillis()}.jpg")
+            pendingCameraFile = photoFile
+            val photoUri = FileProvider.getUriForFile(
+                this,
+                "$packageName.fileprovider",
+                photoFile
+            )
+            takePictureLauncher.launch(photoUri)
+        } catch (e: Exception) {
+            pendingCameraFile = null
+            toast("相机启动失败")
         }
     }
 
@@ -259,12 +310,18 @@ class EditPartActivity : AppCompatActivity() {
             .setNegativeButton("取消", null)
             .setPositiveButton("删除") { _, _ ->
                 db.deletePart(partId)
-                if (oldImageFileName.isNotEmpty()) {
-                    val file = File(filesDir, oldImageFileName)
+
+                val toDelete = mutableSetOf<String>()
+                if (oldImageFileName.isNotEmpty()) toDelete.add(oldImageFileName)
+                if (currentImageFileName.isNotEmpty()) toDelete.add(currentImageFileName)
+
+                for (name in toDelete) {
+                    val file = File(filesDir, name)
                     if (file.exists()) {
                         file.delete()
                     }
                 }
+
                 toast("已删除")
                 setResult(RESULT_OK)
                 finish()
